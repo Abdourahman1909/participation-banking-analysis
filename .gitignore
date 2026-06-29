@@ -1,2 +1,7 @@
 inspiration-02/
 A01/
+
+# Python
+.venv/
+__pycache__/
+*.pyc

@@ -16,8 +16,9 @@ _Avoid_: Islamic bank (informal), conventional bank (different category)
 **Target Bank List**:
 The fixed, finite set of participation banks officially listed by the BDDK
 (Banking Regulation and Supervision Agency) that the system collects campaign
-data from. The boundary of what the system scrapes is closed and enumerable,
-not an open-ended crawl target.
+data from — confirmed as 10 active banks as of 2026-06-29 (7 traditional, 3
+digital-only; see ADR 0001). The boundary of what the system scrapes is
+closed and enumerable, not an open-ended crawl target.
 _Avoid_: the web, crawl targets, bank universe
 
 **Collection Run**:

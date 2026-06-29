@@ -30,3 +30,13 @@ single-element selector. For banks where the campaign block is a single
 known element, this is a clean win; for banks listing several campaigns per
 page, weigh it against just asserting non-emptiness directly in our own
 code, which needs no per-identifier setup.
+
+**Correction (post first real scraper, Kuveyt Türk):** initially tried
+adding a content-marker check (require a `%` or `TL` in the extracted
+text) as part of self-check. Live testing immediately produced false
+positives — legitimate campaigns (an interest-free-installment promo on a
+partner site, a favorable-FX offer) don't always state a flat numeric rate.
+That's exactly the nullable-field case ADR 0014 already covers, not a
+scraping anomaly. Self-check stays purely structural: empty result, or
+length far outside the expected range for that selector. Whether a field
+has a value is extraction's problem, not collection's.

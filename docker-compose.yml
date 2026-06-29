@@ -1,0 +1,67 @@
+# Deployment shape per docs/adr/0013-docker-compose-deployment.md.
+# `docker compose up` brings up the whole on-prem stack: nothing here calls
+# out to an external service (ADR 0009/spec §5.9).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: banking
+      POSTGRES_PASSWORD: banking
+      POSTGRES_DB: banking_analysis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/seed_banks.sql:/docker-entrypoint-initdb.d/02_seed_banks.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U banking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    # GPU passthrough — requires nvidia-container-toolkit on the host.
+    # Comment out the `deploy` block below to run on CPU only.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: scheduler/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
+      OLLAMA_URL: http://ollama:11434
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
+      OLLAMA_URL: http://ollama:11434
+    ports:
+      - "8501:8501"
+
+volumes:
+  pgdata:
+  ollama_models:
