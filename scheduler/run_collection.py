@@ -6,9 +6,6 @@ saves results to the Knowledge Store.
 from __future__ import annotations
 
 import logging
-import sys
-
-sys.path.insert(0, "src")
 
 from banking_analysis.collection.banks.kuveytturk import KuveytTurkScraper
 from banking_analysis.collection.banks.tombank import TomBankScraper

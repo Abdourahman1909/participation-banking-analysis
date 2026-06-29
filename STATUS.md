@@ -27,26 +27,38 @@
 - `docker-compose.yml` + `scheduler/Dockerfile` + `app/Dockerfile` per
   ADR 0013, plus a placeholder Streamlit app that reads the Knowledge Store
 
+- Layer reorganization done: `app/streamlit_app.py` moved to
+  `src/banking_analysis/frontend/dashboard.py`, `app/Dockerfile` updated,
+  each layer's `__init__.py` has a comment identifying which layer it is —
+  all verified working. File Map added to `CLAUDE.md`. These changes are
+  uncommitted (staged).
+- Docker installed on the user's laptop (Ubuntu 22.04). Postgres container
+  verified end-to-end: schema created, all 10 banks seeded, `docker compose
+  up postgres -d` confirmed healthy. RAM on this machine: 7.6 GB total;
+  Postgres uses ~25 MB.
+
 ## Blocked on this machine (needs the team's actual hardware)
 
-- **No Docker installed** (no passwordless sudo to install it) — the
-  compose stack, schema, and storage layer are written but not yet run
-  end-to-end against a real Postgres instance. Needs validating on a
-  machine with Docker.
 - **No GPU/Ollama here** — extraction (ADR 0004/0005, Qwen2.5-Instruct)
   hasn't been started. Needs the teammate's laptop with the actual GPU.
+  7.6 GB RAM means CPU-only Ollama will be very tight; confirm GPU/VRAM
+  on teammate's machine before choosing 7B vs 14B.
 
-## Next
+## Next (immediate — do in order)
 
-- Confirm GPU/VRAM on the team's laptop -> lock Qwen2.5 7B vs 14B, install
-  Ollama there, validate the docker-compose stack end-to-end
-- Build remaining 8 bank scrapers (pattern is proven for both page shapes
-  seen so far; some banks may need a 3rd shape, or `DynamicFetcher` if
-  JS-rendered — not yet encountered)
-- Build the extraction engine (ADR 0004): LLM call -> {value, evidence_quote}
-  per field, closed enum for campaign_type (ADR 0011), nullable fields +
-  no_campaign_detected (ADR 0014)
-- Build rule-based validation (ADR 0008)
-- Build the tool-calling agent + real dashboard/chatbot (ADR 0007/0009/0012)
-- Decide the project name
-- Push all of the above to the private repo as it lands
+1. **Commit** the staged layer-reorganization changes (last session ended
+   before committing)
+2. **Wire scrapers → `collection_runs`**: the scraper writes `raw_text`
+   to the `collection_runs` table (Layer 1 → Layer 4 handoff). Storage
+   layer connector exists in `src/banking_analysis/storage/db.py` but
+   hasn't been called from the scrapers yet. This is the correct next
+   step — it does NOT skip Layers 2/3; those read from `collection_runs`
+   later when the GPU machine is available.
+3. **Build remaining 8 bank scrapers** (pattern proven for both page
+   shapes seen so far; some may need `DynamicFetcher` if JS-rendered —
+   not yet encountered)
+4. Build the extraction engine (ADR 0004) — on the GPU machine
+5. Build rule-based validation (ADR 0008)
+6. Build the tool-calling agent + real dashboard/chatbot (ADR 0007/0009/0012)
+7. Decide the project name
+8. Push all of the above to the private repo as it lands

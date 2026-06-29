@@ -19,6 +19,27 @@ makes products comparable across banks, and serves results via a dashboard
 - `docs/adr/` — architecture decisions, numbered, each with the why
 - `STATUS.md` — current progress and immediate next steps
 
+## File Map — which folder is which architecture layer
+
+Every layer's actual code lives under `src/banking_analysis/<layer>/` —
+open any file there and its `__init__.py` says which layer it is and which
+ADRs explain it. Top-level `app/`, `scheduler/`, `db/` are deployment glue
+only (Dockerfiles, SQL) — they don't contain layer logic themselves.
+
+| Layer | Code lives in | Deployment glue |
+|---|---|---|
+| 0 — Data sources | (just the bank list, ADR 0001) | `db/seed_banks.sql` |
+| 1 — Collection | `src/banking_analysis/collection/` | `scheduler/Dockerfile` runs `scheduler/run_collection.py` |
+| 2 — Extraction | `src/banking_analysis/extraction/` (empty so far) | — |
+| 3 — Validation | `src/banking_analysis/validation/` (empty so far) | — |
+| 4 — Knowledge Store | `src/banking_analysis/storage/` (the connector) | `db/schema.sql` (the actual schema) |
+| 5 — Reasoning (agent) | `src/banking_analysis/agent/` (empty so far) | — |
+| 6 — Frontend | `src/banking_analysis/frontend/` | `app/Dockerfile` runs `frontend/dashboard.py` |
+| (wraps all of it) | — | `docker-compose.yml` |
+
+If a folder under `src/banking_analysis/` is empty, that layer hasn't been
+built yet — check `STATUS.md` for what's next.
+
 ## Technical constraints (these score points, keep them regardless of path)
 
 - Must run fully on-prem/offline — no external LLM APIs, no paid services,

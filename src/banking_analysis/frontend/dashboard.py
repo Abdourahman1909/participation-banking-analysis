@@ -1,11 +1,9 @@
-"""Placeholder dashboard (ADR 0012). Real comparison table/chatbot land
-once the extraction (ADR 0004) and agent (ADR 0007) layers exist — for now
-this just proves the app container can read the Knowledge Store.
+"""Layer 6 — Frontend. See docs/adr/0012, 0009.
+
+Placeholder dashboard. Real comparison table/chatbot land once Layer 2
+(extraction, ADR 0004) and Layer 5 (agent, ADR 0007) exist — for now this
+just proves the app container can read the Knowledge Store (Layer 4).
 """
-
-import sys
-
-sys.path.insert(0, "src")
 
 import streamlit as st
 
