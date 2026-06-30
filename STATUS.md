@@ -82,7 +82,14 @@
    the verifier catches hallucinated quotes — no GPU needed. STILL TO DO:
    run it against the real model on the GPU laptop, then `eval` to measure
    accuracy (7B vs 14B decision) on the ground-truth answer key.
-3. Build rule-based validation (ADR 0008)
+3. ~~Build rule-based validation (ADR 0008)~~ — **code done** (Layer 3).
+   `src/banking_analysis/validation/`: normalize (Turkish number parsing),
+   validator (substantiation = value's number is in its quote; parse; range),
+   store, runner. Added `value_normalized` column to campaign_fields (typed
+   value; original string kept, ADR 0017). Dashboard now sorts on the stored
+   normalized value (dropped the ad-hoc `_parse_rate`). 14/14 offline tests
+   pass (`tests/test_validation.py`). Runs with no model/GPU:
+   `uv run python -m banking_analysis.validation.runner` (after extraction).
 4. Build the tool-calling agent (ADR 0007) and wire it to the existing
    chat UI — the frontend shell + answer/sources layout already exist
    (Sohbet tab); they need the real LLM agent behind them instead of the

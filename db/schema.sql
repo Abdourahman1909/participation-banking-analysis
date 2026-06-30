@@ -68,9 +68,10 @@ CREATE TABLE campaign_fields (
     id SERIAL PRIMARY KEY,
     campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
     field_name TEXT NOT NULL,        -- e.g. 'profit_share_rate', 'maturity_months', 'cost_amount'
-    value TEXT,                      -- normalized value; cast at query time (e.g. ::numeric) for sorting
+    value TEXT,                      -- verbatim/as-extracted string; never overwritten (ADR 0017)
+    value_normalized NUMERIC,        -- typed, comparable value produced by validation (ADR 0008/0017)
     evidence_quote TEXT,             -- verbatim source sentence; null iff value is null
-    is_valid BOOLEAN,
+    is_valid BOOLEAN,                -- rule-based validation verdict (Layer 3); null = not checked / no value
     validation_reason TEXT,
     UNIQUE (campaign_id, field_name)
 );

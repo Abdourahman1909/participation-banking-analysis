@@ -65,6 +65,8 @@ def load_campaigns() -> tuple[list[Campaign], bool]:
             n = conn.execute("SELECT count(*) FROM campaigns").fetchone()[0]
             if n == 0:
                 return sample_campaigns(), True
+            # rate_sort comes from value_normalized (typed by validation,
+            # ADR 0008) — no ad-hoc parsing in the frontend anymore.
             rows = conn.execute(
                 """
                 SELECT b.name, c.title, c.campaign_type,
@@ -72,7 +74,9 @@ def load_campaigns() -> tuple[list[Campaign], bool]:
                        max(f.value) FILTER (WHERE f.field_name = 'maturity_months'),
                        max(f.value) FILTER (WHERE f.field_name = 'cost_amount'),
                        max(f.evidence_quote) FILTER (WHERE f.field_name = 'profit_share_rate'),
-                       bool_and(coalesce(f.is_valid, TRUE))
+                       bool_and(coalesce(f.is_valid, TRUE)),
+                       max(f.value_normalized) FILTER (WHERE f.field_name = 'profit_share_rate'),
+                       max(f.value_normalized) FILTER (WHERE f.field_name = 'maturity_months')
                 FROM campaigns c
                 JOIN banks b ON b.id = c.bank_id
                 LEFT JOIN campaign_fields f ON f.campaign_id = c.id
@@ -83,8 +87,8 @@ def load_campaigns() -> tuple[list[Campaign], bool]:
         out = [
             Campaign(
                 bank=r[0], title=r[1] or "—", ctype=r[2] or "other",
-                profit_rate=r[3], rate_sort=_parse_rate(r[3]),
-                term_months=int(r[4]) if r[4] and str(r[4]).isdigit() else None,
+                profit_rate=r[3], rate_sort=float(r[8]) if r[8] is not None else None,
+                term_months=int(r[9]) if r[9] is not None else None,
                 amount=r[5], evidence=r[6] or "", valid=bool(r[7]),
             )
             for r in rows
@@ -92,16 +96,6 @@ def load_campaigns() -> tuple[list[Campaign], bool]:
         return out, False
     except Exception:
         return sample_campaigns(), True
-
-
-def _parse_rate(value: str | None) -> float | None:
-    if not value:
-        return None
-    cleaned = value.replace("%", "").replace(",", ".").strip().split()[0]
-    try:
-        return float(cleaned)
-    except ValueError:
-        return None
 
 
 # --------------------------------------------------------------------------
