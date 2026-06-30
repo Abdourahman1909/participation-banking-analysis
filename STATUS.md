@@ -30,12 +30,16 @@
 - Layer reorganization done: `app/streamlit_app.py` moved to
   `src/banking_analysis/frontend/dashboard.py`, `app/Dockerfile` updated,
   each layer's `__init__.py` has a comment identifying which layer it is —
-  all verified working. File Map added to `CLAUDE.md`. These changes are
-  uncommitted (staged).
-- Docker installed on the user's laptop (Ubuntu 22.04). Postgres container
-  verified end-to-end: schema created, all 10 banks seeded, `docker compose
-  up postgres -d` confirmed healthy. RAM on this machine: 7.6 GB total;
-  Postgres uses ~25 MB.
+  all verified working. File Map added to `CLAUDE.md`.
+- Docker installed on user's laptop (Ubuntu 22.04, 7.6 GB RAM). Postgres
+  container running and verified: schema created, all 10 banks seeded,
+  `docker compose up postgres -d` confirmed healthy. Postgres uses ~25 MB.
+- **Layer 1 → Layer 4 pipeline verified end-to-end for the first time:**
+  ran `scheduler/run_collection.py` against live Postgres — 13 campaigns
+  stored in `collection_runs` (Kuveyt Türk 10/10 OK, T.O.M. 3/3 OK).
+  Raw Turkish campaign text confirmed readable in the database.
+- Placeholder Streamlit dashboard running at `http://localhost:8501`
+  (start with: `uv run streamlit run src/banking_analysis/frontend/dashboard.py`)
 
 ## Blocked on this machine (needs the team's actual hardware)
 
@@ -46,19 +50,14 @@
 
 ## Next (immediate — do in order)
 
-1. **Commit** the staged layer-reorganization changes (last session ended
-   before committing)
-2. **Wire scrapers → `collection_runs`**: the scraper writes `raw_text`
-   to the `collection_runs` table (Layer 1 → Layer 4 handoff). Storage
-   layer connector exists in `src/banking_analysis/storage/db.py` but
-   hasn't been called from the scrapers yet. This is the correct next
-   step — it does NOT skip Layers 2/3; those read from `collection_runs`
-   later when the GPU machine is available.
-3. **Build remaining 8 bank scrapers** (pattern proven for both page
-   shapes seen so far; some may need `DynamicFetcher` if JS-rendered —
-   not yet encountered)
-4. Build the extraction engine (ADR 0004) — on the GPU machine
-5. Build rule-based validation (ADR 0008)
-6. Build the tool-calling agent + real dashboard/chatbot (ADR 0007/0009/0012)
-7. Decide the project name
-8. Push all of the above to the private repo as it lands
+1. **Build remaining 8 bank scrapers** — each requires manually visiting
+   the bank's campaign page first to find the URL + CSS selector + page
+   shape (Shape 1: list→detail pages like Kuveyt Türk, or Shape 2: all
+   campaigns on one page like T.O.M.). ~15 min per bank. Banks remaining:
+   Albaraka Türk, Türkiye Finans, Vakıf Katılım, Ziraat Katılım,
+   Türkiye Emlak Katılım, Dünya Katılım, Adil Katılım, Hayat Finans.
+2. Build the extraction engine (ADR 0004) — on the GPU machine
+3. Build rule-based validation (ADR 0008)
+4. Build the tool-calling agent + real dashboard/chatbot (ADR 0007/0009/0012)
+5. Decide the project name
+6. Push all of the above to the private repo as it lands
