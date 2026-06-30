@@ -38,8 +38,19 @@
   ran `scheduler/run_collection.py` against live Postgres — 13 campaigns
   stored in `collection_runs` (Kuveyt Türk 10/10 OK, T.O.M. 3/3 OK).
   Raw Turkish campaign text confirmed readable in the database.
-- Placeholder Streamlit dashboard running at `http://localhost:8501`
-  (start with: `uv run streamlit run src/banking_analysis/frontend/dashboard.py`)
+- **Layer 6 frontend designed and built** (ADR 0012, via the `impeccable`
+  skill). Strategic brief in `PRODUCT.md`, visual system in `DESIGN.md`.
+  Calm-analytical light theme, teal-green brand. Three files under
+  `src/banking_analysis/frontend/`: `theme.py` (OKLCH CSS design system),
+  `sample_data.py` (illustrative extracted campaigns from real scraped
+  text), `dashboard.py` (header + live stats, comparison Panel with
+  filter/sort/best-rate highlight, Sohbet chat showing the ADR 0009
+  answer+sources contract). `.streamlit/config.toml` holds the base theme.
+  Verified end-to-end with headless-browser screenshots. Start with:
+  `uv run streamlit run src/banking_analysis/frontend/dashboard.py`
+  - Real data: bank list + collection stats from Postgres. Extracted
+    fields are sample data (badged "Önizleme") until Layer 2 runs; the
+    dashboard auto-switches to the DB once campaigns are populated.
 
 ## Blocked on this machine (needs the team's actual hardware)
 
@@ -58,6 +69,11 @@
    Türkiye Emlak Katılım, Dünya Katılım, Adil Katılım, Hayat Finans.
 2. Build the extraction engine (ADR 0004) — on the GPU machine
 3. Build rule-based validation (ADR 0008)
-4. Build the tool-calling agent + real dashboard/chatbot (ADR 0007/0009/0012)
-5. Decide the project name
+4. Build the tool-calling agent (ADR 0007) and wire it to the existing
+   chat UI — the frontend shell + answer/sources layout already exist
+   (Sohbet tab); they need the real LLM agent behind them instead of the
+   canned responses. Same for the comparison Panel: it reads real DB data
+   automatically once extraction populates campaigns/campaign_fields.
+5. Decide the project name (UI currently uses the working title "Katılım
+   Compare" — not final)
 6. Push all of the above to the private repo as it lands
