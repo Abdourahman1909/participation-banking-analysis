@@ -52,12 +52,19 @@
     fields are sample data (badged "Önizleme") until Layer 2 runs; the
     dashboard auto-switches to the DB once campaigns are populated.
 
-## Blocked on this machine (needs the team's actual hardware)
+## Model server: teammate's GPU laptop (ADR 0015)
 
-- **No GPU/Ollama here** — extraction (ADR 0004/0005, Qwen2.5-Instruct)
-  hasn't been started. Needs the teammate's laptop with the actual GPU.
-  7.6 GB RAM means CPU-only Ollama will be very tight; confirm GPU/VRAM
-  on teammate's machine before choosing 7B vs 14B.
+- This machine has **no usable GPU** (Intel iGPU, 7.6 GB RAM) — confirmed
+  with `nvidia-smi`. Cannot run the extraction/agent model here.
+- **Decision (ADR 0015):** run Ollama + Qwen2.5 on a teammate's GPU laptop
+  as a network model server; the rest of the system runs on the primary
+  machine and reaches it via `OLLAMA_URL` over the LAN. Still on-prem.
+- **One number still needed:** the GPU's VRAM (`nvidia-smi` on that laptop)
+  to lock 7B vs 14B (ADR 0005). On that machine:
+  `curl -fsSL https://ollama.com/install.sh | sh` then
+  `ollama pull qwen2.5:7b-instruct` (or `:14b-instruct`).
+- Extraction code can be **written now** on this machine (it just points
+  `OLLAMA_URL` at the GPU laptop) — not blocked on having the hardware yet.
 
 ## Next (immediate — do in order)
 
