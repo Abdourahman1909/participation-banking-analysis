@@ -90,11 +90,18 @@
    normalized value (dropped the ad-hoc `_parse_rate`). 14/14 offline tests
    pass (`tests/test_validation.py`). Runs with no model/GPU:
    `uv run python -m banking_analysis.validation.runner` (after extraction).
-4. Build the tool-calling agent (ADR 0007) and wire it to the existing
-   chat UI — the frontend shell + answer/sources layout already exist
-   (Sohbet tab); they need the real LLM agent behind them instead of the
-   canned responses. Same for the comparison Panel: it reads real DB data
-   automatically once extraction populates campaigns/campaign_fields.
+4. ~~Build the tool-calling agent (ADR 0007)~~ — **code done** (Layer 5).
+   `src/banking_analysis/agent/`: fixed read-only toolset (get_campaigns,
+   compare_by_rate), scope-guard prompt (banking domain only; clarify +
+   recommend in-scope, decline off-topic), tool-calling loop with sources
+   attached deterministically from tool results (ADR 0009). Wired into the
+   dashboard chat with graceful fallback to the canned preview until
+   campaigns exist + the model is reachable. 3/3 offline tests pass. STILL
+   TO DO: run against the real model on the GPU laptop.
+   **All 6 layers are now code-complete (24/24 offline tests pass).** The
+   remaining work is operational: run extraction + validation + agent against
+   the real model on the GPU laptop (ADR 0015), then the full pipeline is
+   live end-to-end.
 5. Decide the project name (UI currently uses the working title "Katılım
    Compare" — not final)
 6. Data-lifecycle follow-ups (ADR 0017, build when Collection Runs start

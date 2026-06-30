@@ -280,13 +280,37 @@ def _canned_answer(question: str) -> dict:
     return {"answer": ans, "sources": srcs}
 
 
-def render_sources(sources: list[Campaign]) -> str:
-    items = "".join(
-        f'<div class="kc-source-item"><b>{theme.esc(s.bank)}</b> — '
-        f'{theme.esc(s.title)}<br><em>“{theme.esc(s.evidence)}”</em></div>'
-        for s in sources
-    )
-    return f'<div class="kc-sources"><div class="kc-src-head">Kaynaklar</div>{items}</div>'
+def render_sources(sources: list) -> str:
+    """Render the Kaynaklar block. Tolerates both sample Campaign objects
+    (.evidence) and the real agent's Source objects (.evidence_quote)."""
+    parts = []
+    for s in sources:
+        evid = getattr(s, "evidence", None) or getattr(s, "evidence_quote", None) or ""
+        title = getattr(s, "title", None) or ""
+        parts.append(
+            f'<div class="kc-source-item"><b>{theme.esc(s.bank)}</b> — '
+            f'{theme.esc(title)}<br><em>“{theme.esc(evid)}”</em></div>'
+        )
+    return f'<div class="kc-sources"><div class="kc-src-head">Kaynaklar</div>{"".join(parts)}</div>'
+
+
+def get_answer(question: str) -> dict:
+    """Use the real tool-calling agent (ADR 0007) once campaigns exist AND the
+    model server is reachable; otherwise fall back to the canned preview so the
+    chat still works before extraction has run."""
+    try:
+        from banking_analysis.agent.agent import answer as agent_answer
+        from banking_analysis.extraction.client import OllamaClient
+        from banking_analysis.storage.db import connect
+
+        with connect() as conn:
+            has_data = conn.execute("SELECT count(*) FROM campaigns").fetchone()[0]
+            if has_data:
+                res = agent_answer(question, OllamaClient(), conn)
+                return {"answer": res.answer, "sources": res.sources}
+    except Exception:
+        pass
+    return _canned_answer(question)
 
 
 def view_chat() -> None:
@@ -321,7 +345,7 @@ def view_chat() -> None:
     if prompt := st.chat_input("Bir soru sorun…"):
         st.session_state.chat.append(
             {"role": "user", "answer": prompt, "sources": []})
-        result = _canned_answer(prompt)
+        result = get_answer(prompt)
         st.session_state.chat.append(
             {"role": "assistant", "answer": result["answer"],
              "sources": result["sources"]})

@@ -53,3 +53,18 @@ class OllamaClient:
         )
         resp.raise_for_status()
         return resp.json()["message"]["content"]
+
+    def chat(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
+        """Multi-turn chat with optional tool-calling (for the agent, ADR 0007).
+        Returns the assistant message dict (may contain 'tool_calls')."""
+        body: dict = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+            "options": {"temperature": 0},
+        }
+        if tools:
+            body["tools"] = tools
+        resp = httpx.post(f"{self.url}/api/chat", json=body, timeout=self.timeout)
+        resp.raise_for_status()
+        return resp.json()["message"]
