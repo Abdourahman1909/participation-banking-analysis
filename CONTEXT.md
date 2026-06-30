@@ -66,3 +66,33 @@ Customer, Investment Product) plus an `Other` catch-all — a closed
 classification assigned to every extracted campaign, not free text, so
 cross-bank comparison can group on it.
 _Avoid_: campaign category (implies open-ended)
+
+**Snapshot**:
+The data captured by one Collection Run for one source URL at one point in
+time — the raw text and everything extracted from it, tied to that run's
+`fetched_at`. The store is append-only (ADR 0017): re-scraping the same URL
+later creates a *new* snapshot, it never overwrites the old one, so snapshots
+accumulate into a per-bank time series.
+_Avoid_: the latest data, the record (these hide that history is kept)
+
+**Current View**:
+The query-time selection of the most recent Snapshot per (bank, source URL)
+— what the dashboard shows as "available now." It is a *view* over the
+history, not a stored table; producing it never deletes older Snapshots
+(ADR 0017).
+_Avoid_: current table, live data (imply older data was replaced/removed)
+
+**Campaign Lifecycle State**:
+The status of a campaign as a value that changes over time — e.g. active
+(its validity window contains today) vs expired (window has passed) — derived
+from extracted date fields. Expiry is a *state*, never a deletion: an expired
+campaign stays in the store as the historical record of a promotion that ran
+(ADR 0017).
+_Avoid_: deleting/removing expired campaigns, archived (implies moved out)
+
+**Provenance**:
+The traceable lineage of any stored figure back to its origin —
+`campaign_field → campaign → collection_run → raw_text`, plus its
+`evidence_quote` (ADR 0004) and validation verdict (ADR 0008). Guarantees any
+value can be tied to the exact source text, bank, and timestamp it came from.
+_Avoid_: source link (understates the full chain + timestamp)

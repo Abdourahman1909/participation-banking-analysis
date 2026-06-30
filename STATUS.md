@@ -90,4 +90,8 @@
    automatically once extraction populates campaigns/campaign_fields.
 5. Decide the project name (UI currently uses the working title "Katılım
    Compare" — not final)
-6. Push all of the above to the private repo as it lands
+6. Data-lifecycle follow-ups (ADR 0017, build when Collection Runs start
+   repeating): a Current View query (latest snapshot per bank+URL), persist
+   extraction drops/diagnostics for model-quality tracking, Postgres backup
+   cadence. Principle locked: append-only, never delete — history is the asset.
+7. Push all of the above to the private repo as it lands
