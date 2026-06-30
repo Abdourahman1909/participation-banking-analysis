@@ -109,3 +109,13 @@
    extraction drops/diagnostics for model-quality tracking, Postgres backup
    cadence. Principle locked: append-only, never delete — history is the asset.
 7. Push all of the above to the private repo as it lands
+
+## Parked ideas (good, but deliberately deferred)
+
+- **Conversation-data asset.** The user↔chatbot interaction traces (question →
+  tools → sources → answer → verdict) are a valuable second asset: real query
+  demand signal, training/eval data for a better model, quality measurement.
+  BUT conversations can contain personal data → must be privacy-by-design and
+  KVKK-aware (Turkey's data-protection law); on-prem already helps. Parked on
+  2026-07-01 (no real users yet). When revived: append-only conversation_log
+  per ADR 0017 (session id, not identity), privacy policy first. Not built.
