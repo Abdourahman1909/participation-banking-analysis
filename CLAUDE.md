@@ -30,15 +30,21 @@ only (Dockerfiles, SQL) — they don't contain layer logic themselves.
 |---|---|---|
 | 0 — Data sources | (just the bank list, ADR 0001) | `db/seed_banks.sql` |
 | 1 — Collection | `src/banking_analysis/collection/` | `scheduler/Dockerfile` runs `scheduler/run_collection.py` |
-| 2 — Extraction | `src/banking_analysis/extraction/` (empty so far) | — |
-| 3 — Validation | `src/banking_analysis/validation/` (empty so far) | — |
+| 2 — Extraction | `src/banking_analysis/extraction/` | `extraction/runner.py` (`-m banking_analysis.extraction.runner`) |
+| 3 — Validation | `src/banking_analysis/validation/` | `validation/runner.py` (`-m banking_analysis.validation.runner`) |
 | 4 — Knowledge Store | `src/banking_analysis/storage/` (the connector) | `db/schema.sql` (the actual schema) |
-| 5 — Reasoning (agent) | `src/banking_analysis/agent/` (empty so far) | — |
+| 5 — Reasoning (agent) | `src/banking_analysis/agent/` | — (wired into the frontend chat) |
 | 6 — Frontend | `src/banking_analysis/frontend/` | `app/Dockerfile` runs `frontend/dashboard.py` |
 | (wraps all of it) | — | `docker-compose.yml` |
 
-If a folder under `src/banking_analysis/` is empty, that layer hasn't been
-built yet — check `STATUS.md` for what's next.
+All six layers are code-complete as of 2026-07-01 (offline-tested in
+`tests/`). If a folder under `src/banking_analysis/` is empty, that layer
+hasn't been built — check `STATUS.md` for current state.
+
+**Not a layer:** `src/banking_analysis/control_panel/` is a cross-cutting
+operator console (ADR 0018) — buttons to run each layer, status, data
+browser, read-only SQL. Run it on its own port:
+`uv run streamlit run src/banking_analysis/control_panel/app.py --server.port 8502`
 
 ## Technical constraints (these score points, keep them regardless of path)
 

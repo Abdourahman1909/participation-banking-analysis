@@ -110,6 +110,17 @@
    cadence. Principle locked: append-only, never delete — history is the asset.
 7. Push all of the above to the private repo as it lands
 
+## Operator control panel (ADR 0018) — built
+
+- `src/banking_analysis/control_panel/` — separate Streamlit ops console (NOT
+  a layer). Run pipeline steps with buttons (collection/extraction/validation/
+  eval), see status (table counts, collected→extracted→validated funnel, model
+  server reachability, scraper coverage), browse tables, and run **read-only**
+  SQL (SELECT only — protects the append-only asset, ADR 0017). Replaces
+  copy-pasting terminal commands. Start it:
+  `uv run streamlit run src/banking_analysis/control_panel/app.py --server.port 8502`
+  (public dashboard stays on 8501). Verified by screenshot.
+
 ## Parked ideas (good, but deliberately deferred)
 
 - **Conversation-data asset.** The user↔chatbot interaction traces (question →
