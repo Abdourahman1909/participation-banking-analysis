@@ -10,7 +10,15 @@ always badged as preview so nothing fake is shown as confirmed.
 
 from __future__ import annotations
 
+from datetime import timedelta, timezone
+
 import streamlit as st
+
+# fetched_at is stored in UTC (correct). Display dates in Türkiye time so a
+# collection run at 02:58 local doesn't read as "yesterday". Turkey is a
+# fixed UTC+3 — no DST since 2016 — so a constant offset needs no tzdata
+# (keeps the slim Docker image dependency-free).
+TURKEY_TZ = timezone(timedelta(hours=3))
 
 from banking_analysis.frontend import theme
 from banking_analysis.frontend.sample_data import (
@@ -102,7 +110,7 @@ def _parse_rate(value: str | None) -> float | None:
 def render_header(stats: dict | None) -> None:
     if stats:
         last = stats["last"]
-        last_str = last.strftime("%d.%m.%Y") if last else "—"
+        last_str = last.astimezone(TURKEY_TZ).strftime("%d.%m.%Y") if last else "—"
         # Every number here is counted live from the Knowledge Store, so the
         # strip updates on each collection run. (No date-based "active" filter
         # yet — that needs campaign validity dates from extraction; deferred
