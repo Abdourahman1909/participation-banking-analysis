@@ -1,0 +1,16 @@
+# Base theme (ADR 0012, DESIGN.md). Streamlit wants hex; the full design
+# system — typography, components, the comparison table — is layered on top
+# via injected CSS in src/banking_analysis/frontend/theme.py. These values
+# are the hex mirror of the OKLCH palette in DESIGN.md.
+[theme]
+base = "light"
+primaryColor = "#0F8A77"            # --brand teal-green
+backgroundColor = "#FFFFFF"         # --bg pure white
+secondaryBackgroundColor = "#F3F6F5" # --surface (whisper of teal)
+textColor = "#16201F"               # --ink
+linkColor = "#0F8A77"
+font = "sans-serif"
+
+[server]
+# On-prem/offline posture (CLAUDE.md): no usage stats phoned home.
+gatherUsageStats = false
