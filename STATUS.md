@@ -74,7 +74,14 @@
    campaigns on one page like T.O.M.). ~15 min per bank. Banks remaining:
    Albaraka Türk, Türkiye Finans, Vakıf Katılım, Ziraat Katılım,
    Türkiye Emlak Katılım, Dünya Katılım, Adil Katılım, Hayat Finans.
-2. Build the extraction engine (ADR 0004) — on the GPU machine
+2. ~~Build the extraction engine (ADR 0004)~~ — **code done** (Layer 2,
+   ADR 0016 verify-don't-trust). `src/banking_analysis/extraction/`:
+   client (Ollama over `OLLAMA_URL`), prompt, models, extractor (grounding
+   gate — drops any value whose evidence quote isn't in the source), store,
+   runner, eval. 7/7 offline tests pass (`tests/test_extraction.py`) proving
+   the verifier catches hallucinated quotes — no GPU needed. STILL TO DO:
+   run it against the real model on the GPU laptop, then `eval` to measure
+   accuracy (7B vs 14B decision) on the ground-truth answer key.
 3. Build rule-based validation (ADR 0008)
 4. Build the tool-calling agent (ADR 0007) and wire it to the existing
    chat UI — the frontend shell + answer/sources layout already exist
