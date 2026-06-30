@@ -103,11 +103,14 @@ def render_header(stats: dict | None) -> None:
     if stats:
         last = stats["last"]
         last_str = last.strftime("%d.%m.%Y") if last else "—"
+        # Every number here is counted live from the Knowledge Store, so the
+        # strip updates on each collection run. (No date-based "active" filter
+        # yet — that needs campaign validity dates from extraction; deferred
+        # until we can confirm those extract cleanly.)
         right = (
             f'<b>{stats["banks"]}</b> banka &nbsp;·&nbsp; '
-            f'<b>{stats["campaigns"]}</b> kampanya &nbsp;·&nbsp; '
-            f'<b>8</b> ürün tipi<br>Son toplama: {theme.esc(last_str)} '
-            f'&nbsp;·&nbsp; çevrimdışı'
+            f'<b>{stats["campaigns"]}</b> kampanya<br>'
+            f'Son toplama: {theme.esc(last_str)} &nbsp;·&nbsp; çevrimdışı'
         )
     else:
         right = (
