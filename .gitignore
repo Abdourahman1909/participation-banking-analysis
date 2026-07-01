@@ -5,3 +5,6 @@ A01/
 .venv/
 __pycache__/
 *.pyc
+
+# Local environment overrides (see .env.example)
+.env

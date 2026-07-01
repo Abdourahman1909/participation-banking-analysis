@@ -53,7 +53,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
-      OLLAMA_URL: http://ollama:11434
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
       PIPELINE_INTERVAL_SECONDS: "86400"   # daily; lower this for demos
     restart: unless-stopped
 
@@ -66,7 +67,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
-      OLLAMA_URL: http://ollama:11434
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
     ports:
       - "8501:8501"
 
@@ -81,7 +83,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
-      OLLAMA_URL: http://ollama:11434
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
     command: ["uv", "run", "streamlit", "run",
               "src/banking_analysis/control_panel/app.py",
               "--server.address=0.0.0.0", "--server.port=8502"]
