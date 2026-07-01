@@ -31,7 +31,10 @@ class SelfCheckConfig:
     """
 
     min_length: int = 200
-    max_length: int = 20_000
+    # Generous ceiling: this only catches a "grabbed the whole page" mistake,
+    # not a legitimately long campaign. (A real 20,003-char page was once
+    # false-flagged at 20,000 — see ADR 0010 correction.)
+    max_length: int = 50_000
 
 
 class BankScraper:

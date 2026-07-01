@@ -43,13 +43,16 @@ def db_stats() -> dict | None:
 
         with connect() as conn:
             banks = conn.execute("SELECT count(*) FROM banks").fetchone()[0]
-            runs = conn.execute(
-                "SELECT count(*) FROM collection_runs WHERE ok = TRUE"
+            # Current View (ADR 0017): distinct campaigns with a known-good
+            # snapshot — NOT total runs, which double-counts re-scrapes.
+            campaigns = conn.execute(
+                "SELECT count(*) FROM (SELECT DISTINCT bank_id, url "
+                "FROM collection_runs WHERE ok = TRUE) t"
             ).fetchone()[0]
             last = conn.execute(
                 "SELECT max(fetched_at) FROM collection_runs WHERE ok = TRUE"
             ).fetchone()[0]
-        return {"banks": banks, "campaigns": runs, "last": last}
+        return {"banks": banks, "campaigns": campaigns, "last": last}
     except Exception:
         return None
 

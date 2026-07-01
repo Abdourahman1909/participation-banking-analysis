@@ -40,3 +40,14 @@ That's exactly the nullable-field case ADR 0014 already covers, not a
 scraping anomaly. Self-check stays purely structural: empty result, or
 length far outside the expected range for that selector. Whether a field
 has a value is extraction's problem, not collection's.
+
+**Correction 2 (post second real Collection Run, 2026-07-01):** a legitimate
+Kuveyt Türk campaign (a long cost table) came back at 20,003 chars and was
+false-flagged by a 20,000-char `max_length` cap — a 0.015% overage rejecting
+good data. Same lesson as above: the self-check must catch only *drastically*
+wrong output (e.g. the selector grabbed the whole page), not a hair over an
+arbitrary line. Raised the default ceiling to 50,000 (per-bank overrides
+likewise). The same run also produced 2 genuine `HTTP 404`s — campaigns
+removed from the bank's site between runs — which the check correctly failed,
+preserving the last known-good data (Stale Bank Data). The design worked; only
+the one threshold was too tight.

@@ -75,7 +75,10 @@ def status() -> dict:
             g = lambda q: conn.execute(q).fetchone()[0]
             return {
                 "banks": g("SELECT count(*) FROM banks"),
-                "collected": g("SELECT count(*) FROM collection_runs WHERE ok"),
+                # Current View (ADR 0017): distinct campaigns, not total runs.
+                "collected": g("SELECT count(*) FROM (SELECT DISTINCT bank_id, url "
+                               "FROM collection_runs WHERE ok) t"),
+                "runs_total": g("SELECT count(*) FROM collection_runs"),  # full history
                 "extracted": g("SELECT count(*) FROM campaigns"),
                 "validated": g("SELECT count(*) FROM campaign_fields WHERE is_valid IS NOT NULL"),
                 "scraped_banks": g("SELECT count(DISTINCT bank_id) FROM collection_runs WHERE ok"),

@@ -14,7 +14,7 @@ class KuveytTurkScraper(BankScraper):
     # an extraction-time nullable field (ADR 0014), not a scraping anomaly.
     # Self-check here only catches "wrong element" structurally: empty or
     # drastically mis-sized output.
-    self_check_config = SelfCheckConfig(min_length=150, max_length=20_000)
+    self_check_config = SelfCheckConfig(min_length=150, max_length=50_000)
 
     def list_campaign_urls(self) -> list[str]:
         urls: set[str] = set()

@@ -23,7 +23,7 @@ class TomBankScraper(BankScraper):
     name = "T.O.M. Katılım Bankası"
     base_url = "https://www.tombank.com.tr"
     is_digital = True
-    self_check_config = SelfCheckConfig(min_length=100, max_length=5_000)
+    self_check_config = SelfCheckConfig(min_length=100, max_length=15_000)
 
     def list_campaign_urls(self) -> list[str]:
         return [CAMPAIGNS_PAGE]

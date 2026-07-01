@@ -59,9 +59,11 @@ with durum:
         last = s["last_collection"]
         last_str = last.astimezone(TR).strftime("%d.%m.%Y %H:%M") if last else "—"
         theme.html(
-            f'<div class="kc-section-sub">Boru hattı: '
-            f'<b>{s["collected"]}</b> toplandı → <b>{s["extracted"]}</b> çıkarıldı → '
-            f'<b>{s["validated"]}</b> doğrulandı &nbsp;·&nbsp; Son toplama: {theme.esc(last_str)}</div>'
+            f'<div class="kc-section-sub">Boru hattı (güncel): '
+            f'<b>{s["collected"]}</b> kampanya → <b>{s["extracted"]}</b> çıkarıldı → '
+            f'<b>{s["validated"]}</b> doğrulandı &nbsp;·&nbsp; '
+            f'Son toplama: {theme.esc(last_str)} &nbsp;·&nbsp; '
+            f'geçmiş: {s["runs_total"]} çalıştırma kaydı</div>'
         )
 
 

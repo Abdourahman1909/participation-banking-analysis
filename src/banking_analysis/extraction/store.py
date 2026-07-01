@@ -13,18 +13,24 @@ from banking_analysis.extraction.models import FIELD_NAMES, ExtractionResult
 
 
 def pending_runs(conn: psycopg.Connection) -> list[tuple[int, int, str, str]]:
-    """ok collection_runs that haven't been extracted yet, as
-    (run_id, bank_id, url, raw_text)."""
+    """The Current View of collection to extract (ADR 0017): the *latest*
+    known-good snapshot per (bank, url) that hasn't been extracted yet, as
+    (run_id, bank_id, url, raw_text). Older snapshots stay as raw history but
+    aren't re-extracted, so campaigns don't double-count re-scrapes."""
     rows = conn.execute(
         """
-        SELECT cr.id, cr.bank_id, cr.url, cr.raw_text
-        FROM collection_runs cr
-        WHERE cr.ok = TRUE
-          AND cr.raw_text IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1 FROM campaigns c WHERE c.collection_run_id = cr.id
-          )
-        ORDER BY cr.id
+        SELECT latest.id, latest.bank_id, latest.url, latest.raw_text
+        FROM (
+            SELECT DISTINCT ON (cr.bank_id, cr.url)
+                   cr.id, cr.bank_id, cr.url, cr.raw_text
+            FROM collection_runs cr
+            WHERE cr.ok = TRUE AND cr.raw_text IS NOT NULL
+            ORDER BY cr.bank_id, cr.url, cr.fetched_at DESC
+        ) latest
+        WHERE NOT EXISTS (
+            SELECT 1 FROM campaigns c WHERE c.collection_run_id = latest.id
+        )
+        ORDER BY latest.id
         """
     ).fetchall()
     return [(r[0], r[1], r[2], r[3]) for r in rows]
