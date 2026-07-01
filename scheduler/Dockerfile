@@ -12,4 +12,6 @@ COPY scheduler ./scheduler
 # Add `playwright install-deps chromium && playwright install chromium`
 # here only once a bank actually needs DynamicFetcher/StealthyFetcher.
 
-CMD ["uv", "run", "python", "scheduler/run_collection.py"]
+# Runs the full batch pipeline on a schedule (collect → extract → validate),
+# ADR 0013. Interval via PIPELINE_INTERVAL_SECONDS.
+CMD ["uv", "run", "python", "scheduler/run_pipeline.py"]

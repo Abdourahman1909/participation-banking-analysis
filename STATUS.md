@@ -127,6 +127,22 @@
   `uv run streamlit run src/banking_analysis/control_panel/app.py --server.port 8502`
   (public dashboard stays on 8501). Verified by screenshot.
 
+## Deployment (ADR 0013) — compose now matches the built system
+
+- `docker compose up -d --build` on any Docker machine brings up: postgres
+  (auto-runs schema + seed), ollama (model server), scheduler (full pipeline:
+  collect→extract→validate on an interval, `scheduler/run_pipeline.py`), app
+  (public dashboard :8501), control-panel (:8502, ADR 0018).
+- Collection is now a runnable module too (`collection/runner.py`;
+  `scheduler/run_collection.py` is a thin shim). All layers run via
+  `-m banking_analysis.<layer>.runner`.
+- Two deploy notes: ollama starts empty → pull the model once
+  (`docker compose exec ollama ollama pull qwen2.5:7b-instruct`), OR skip it
+  and point `OLLAMA_URL` at a GPU host (ADR 0015). Code moves via git; scraped
+  DATA lives in the `pgdata` volume (move it with pg_dump/restore).
+- Not fully test-run here (Docker needs the user's shell perms; extraction
+  needs the model) — config verified, YAML valid, scripts compile.
+
 ## Parked ideas (good, but deliberately deferred)
 
 - **Conversation-data asset.** The user↔chatbot interaction traces (question →

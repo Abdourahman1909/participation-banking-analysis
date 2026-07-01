@@ -29,7 +29,7 @@ only (Dockerfiles, SQL) — they don't contain layer logic themselves.
 | Layer | Code lives in | Deployment glue |
 |---|---|---|
 | 0 — Data sources | (just the bank list, ADR 0001) | `db/seed_banks.sql` |
-| 1 — Collection | `src/banking_analysis/collection/` | `scheduler/Dockerfile` runs `scheduler/run_collection.py` |
+| 1 — Collection | `src/banking_analysis/collection/` (runner: `collection/runner.py`) | `scheduler/Dockerfile` runs `scheduler/run_pipeline.py` (collect→extract→validate) |
 | 2 — Extraction | `src/banking_analysis/extraction/` | `extraction/runner.py` (`-m banking_analysis.extraction.runner`) |
 | 3 — Validation | `src/banking_analysis/validation/` | `validation/runner.py` (`-m banking_analysis.validation.runner`) |
 | 4 — Knowledge Store | `src/banking_analysis/storage/` (the connector) | `db/schema.sql` (the actual schema) |

@@ -16,7 +16,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 # Pipeline steps the operator can trigger (the commands, behind buttons).
 STEPS: dict[str, list[str]] = {
-    "collection": ["uv", "run", "python", "scheduler/run_collection.py"],
+    "collection": ["uv", "run", "python", "-m", "banking_analysis.collection.runner"],
     "extraction": ["uv", "run", "python", "-m", "banking_analysis.extraction.runner"],
     "validation": ["uv", "run", "python", "-m", "banking_analysis.validation.runner"],
     "eval": ["uv", "run", "python", "-m", "banking_analysis.extraction.eval"],

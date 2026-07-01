@@ -27,6 +27,9 @@ services:
       - ollama_models:/root/.ollama
     ports:
       - "11434:11434"
+    # NOTE: this starts empty — pull the model once after `up`:
+    #   docker compose exec ollama ollama pull qwen2.5:7b-instruct
+    # Or skip this service and point OLLAMA_URL at a GPU host (ADR 0015).
     # GPU passthrough — requires nvidia-container-toolkit on the host.
     # Comment out the `deploy` block below to run on CPU only.
     deploy:
@@ -37,6 +40,10 @@ services:
               count: all
               capabilities: [gpu]
 
+  # Full batch pipeline on a schedule: collect → extract → validate
+  # (scheduler/run_pipeline.py). If the model is offline, extraction logs
+  # failures and the other steps still run. Not hard-depended on ollama so the
+  # external-model setup (ADR 0015) works by just changing OLLAMA_URL.
   scheduler:
     build:
       context: .
@@ -47,6 +54,7 @@ services:
     environment:
       DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
       OLLAMA_URL: http://ollama:11434
+      PIPELINE_INTERVAL_SECONDS: "86400"   # daily; lower this for demos
     restart: unless-stopped
 
   app:
@@ -61,6 +69,24 @@ services:
       OLLAMA_URL: http://ollama:11434
     ports:
       - "8501:8501"
+
+  # Operator control panel (ADR 0018) — separate surface on its own port.
+  # Reuses the app image; only the command differs.
+  control-panel:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
+      OLLAMA_URL: http://ollama:11434
+    command: ["uv", "run", "streamlit", "run",
+              "src/banking_analysis/control_panel/app.py",
+              "--server.address=0.0.0.0", "--server.port=8502"]
+    ports:
+      - "8502:8502"
 
 volumes:
   pgdata:
