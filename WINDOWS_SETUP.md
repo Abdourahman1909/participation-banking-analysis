@@ -76,7 +76,7 @@ shares it over the same Wi-Fi. Nobody else downloads the 5 GB model.
   (use the strong machine's real IP). Then start everything **except** the local
   model service:
   ```powershell
-  docker compose up -d --build postgres app control-panel scheduler
+  docker compose up -d --build postgres api app control-panel scheduler
   ```
 
 ### Tier 3 — No model at all (lightest — for old / low-RAM laptops)
@@ -84,7 +84,7 @@ Just want to open the dashboard, browse data, work on the UI or scrapers, or
 demo the interface? Skip the model entirely:
 
 ```powershell
-docker compose up -d --build postgres app control-panel scheduler
+docker compose up -d --build postgres api app control-panel scheduler
 ```
 Everything opens and runs. The dashboard shows sample/preview data, and the
 control panel will say **"Model sunucusu: kapalı"** — that's expected. The
@@ -96,12 +96,16 @@ model, so it just logs that it's skipped. You can point at a model later
 
 ## 4. Open it
 
-- Dashboard → http://localhost:8501
-- Control panel → http://localhost:8502
+- **KıyasAI (the main product)** → http://localhost:8000
+  Three views in one app: **Panel** (comparison), **Sohbet** (chatbot) and
+  **Monitör** — in Monitör, run the three steps in order,
+  **Toplama** (collect) → **Çıkarım** (extract) → **Doğrulama** (validate),
+  and watch them work live. Then check Panel for the compared campaigns.
+- Old dashboard (Streamlit, being replaced) → http://localhost:8501
+- Control panel (internal tools: SQL, table browser) → http://localhost:8502
 
-In the **control panel**, run the three steps in order —
-**Toplama** (collect) → **Çıkarım** (extract) → **Doğrulama** (validate) —
-then look at the dashboard to see the compared campaigns.
+You don't need to install Node.js for the new interface — Docker builds it
+during `docker compose up --build`.
 
 ---
 
@@ -140,9 +144,9 @@ always safe.
   `echo "X=Y" > .env` in Windows PowerShell can save the file in an encoding
   the app can't read. You don't need `.env` at all for Option A. If you ever do
   (Option B), create it with **Notepad** or **VS Code** and save as **UTF-8**.
-- **"Port already in use" (8501 / 8502 / 5432)** — another program is using
-  that port. Close it, or change the port on the left side of the mapping in
-  `docker-compose.yml` (e.g. `"8601:8501"`).
+- **"Port already in use" (8000 / 8501 / 8502 / 5432)** — another program is
+  using that port. Close it, or change the port on the left side of the mapping
+  in `docker-compose.yml` (e.g. `"8601:8501"`).
 - **Antivirus / firewall popup** the first time — allow Docker through; it only
   talks to your own machine (localhost), nothing external.
 - **Editing project files:** use **VS Code** or **Notepad++**. Line endings do
