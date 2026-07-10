@@ -49,6 +49,9 @@ export default function MonitorView() {
       () => {
         setLiveStep(null);
         refresh();
+        // A finished run may have changed the data — tell the other views
+        // (Panel, header stats) to refetch without a full page reload.
+        window.dispatchEvent(new CustomEvent("kiyasai:data-changed"));
       },
     );
   }, [refresh]);

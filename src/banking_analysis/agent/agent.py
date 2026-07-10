@@ -81,7 +81,14 @@ def answer(question: str, model: ChatModel, conn: psycopg.Connection,
             result = fn(conn, **args) if fn else {"error": f"unknown tool {name}"}
             if isinstance(result, list):
                 collected.extend(result)
-            messages.append({"role": "tool", "content": json.dumps(result, ensure_ascii=False)})
+            tool_msg: dict = {"role": "tool",
+                              "content": json.dumps(result, ensure_ascii=False)}
+            # Strict OpenAI-compatible endpoints (Groq, ADR 0019) reject a
+            # tool message without the id of the call it answers; Ollama
+            # doesn't send ids and ignores the field.
+            if call.get("id"):
+                tool_msg["tool_call_id"] = call["id"]
+            messages.append(tool_msg)
 
     # Ran out of rounds — answer from what we have.
     return AgentAnswer(

@@ -21,7 +21,10 @@ export default function App() {
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
-    fetchStats().then(setStats).catch(() => setStats(null));
+    const load = () => fetchStats().then(setStats).catch(() => setStats(null));
+    load();
+    window.addEventListener("kiyasai:data-changed", load);
+    return () => window.removeEventListener("kiyasai:data-changed", load);
   }, []);
 
   return (

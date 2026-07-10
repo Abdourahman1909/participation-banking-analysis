@@ -51,12 +51,18 @@ export default function PanelView() {
   const [openRow, setOpenRow] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchCampaigns()
-      .then((r) => {
-        setItems(r.items);
-        setIsSample(r.is_sample);
-      })
-      .finally(() => setLoaded(true));
+    const load = () =>
+      fetchCampaigns()
+        .then((r) => {
+          setItems(r.items);
+          setIsSample(r.is_sample);
+        })
+        .finally(() => setLoaded(true));
+    load();
+    // Refetch when a pipeline run finishes (Monitör dispatches this) so the
+    // Panel flips from sample to real data without a page reload.
+    window.addEventListener("kiyasai:data-changed", load);
+    return () => window.removeEventListener("kiyasai:data-changed", load);
   }, []);
 
   const types = useMemo(
