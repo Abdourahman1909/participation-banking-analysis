@@ -46,6 +46,14 @@ operator console (ADR 0018) — buttons to run each layer, status, data
 browser, read-only SQL. Run it on its own port:
 `uv run streamlit run src/banking_analysis/control_panel/app.py --server.port 8502`
 
+**Also not a layer:** `src/banking_analysis/api/` is the HTTP API boundary
+(ADR 0022) — FastAPI wrapping storage + agent + pipeline runs (SSE live
+feed) and serving the new React SPA whose source lives in `web/` (ADR
+0020/0021). Build the SPA with `cd web && npm run build`; run everything
+with `uv run python -m banking_analysis.api.runner` (port 8000).
+`api/Dockerfile` is its deployment glue. The Streamlit public dashboard
+stays until formally retired (see `docs/frontend-rebuild-brief.md`).
+
 ## Technical constraints (these score points, keep them regardless of path)
 
 - Must run fully on-prem/offline — no external LLM APIs, no paid services,

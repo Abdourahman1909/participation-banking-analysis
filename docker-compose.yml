@@ -58,6 +58,25 @@ services:
       PIPELINE_INTERVAL_SECONDS: "86400"   # daily; lower this for demos
     restart: unless-stopped
 
+  # New unified product UI (ADR 0020/0022): FastAPI serves the JSON contract,
+  # the SSE pipeline feed, AND the built React SPA on one port. The pipeline
+  # run buttons (ADR 0021) execute the layer runners inside this container.
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://banking:banking@postgres:5432/banking_analysis
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
+    ports:
+      - "8000:8000"
+
+  # Legacy Streamlit dashboard — stays until the new UI fully replaces it
+  # (frontend-rebuild brief), then this service gets retired.
   app:
     build:
       context: .

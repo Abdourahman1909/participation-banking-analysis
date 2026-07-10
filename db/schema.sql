@@ -77,3 +77,28 @@ CREATE TABLE campaign_fields (
 );
 
 CREATE INDEX idx_campaign_fields_name_value ON campaign_fields (field_name, value);
+
+-- Pipeline run activity (ADR 0021/0022): each operator/API-triggered layer
+-- run and its structured events (the monitor UI's timeline). Append-only
+-- (ADR 0017) — only a run's finish status is filled in when it ends. The
+-- API also creates these idempotently at startup (banking_analysis/api/
+-- runs.py DDL) so databases created before ADR 0022 get them; keep the two
+-- definitions in sync.
+CREATE TABLE IF NOT EXISTS pipeline_runs (
+    id          SERIAL PRIMARY KEY,
+    step        TEXT NOT NULL,           -- collection | extraction | validation
+    started_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    finished_at TIMESTAMPTZ,
+    ok          BOOLEAN                  -- null while running
+);
+
+CREATE TABLE IF NOT EXISTS pipeline_events (
+    id          SERIAL PRIMARY KEY,
+    run_id      INTEGER NOT NULL REFERENCES pipeline_runs(id),
+    seq         INTEGER NOT NULL,
+    event_type  TEXT NOT NULL,           -- bank_done, page_fetched, … or raw 'log'
+    payload     JSONB NOT NULL DEFAULT '{}',
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_run ON pipeline_events (run_id, seq);
