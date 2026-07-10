@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 from typing import Protocol
 
 import httpx
@@ -121,21 +122,39 @@ class OpenAICompatClient:
     def _headers(self) -> dict:
         return {"Authorization": f"Bearer {self.api_key}"}
 
-    def complete(self, system: str, user: str) -> str:
-        resp = self._client.post(
-            f"{self.base_url}/chat/completions",
-            headers=self._headers(),
-            json={
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-                "temperature": 0,
-                "response_format": {"type": "json_object"},  # force valid JSON (ADR 0016)
-            },
-        )
+    def _post(self, body: dict) -> httpx.Response:
+        """POST with wait-and-retry on 429: free external tiers rate-limit
+        per minute, and a batch of 17 records trips that instantly. Honors
+        the server's Retry-After when present. Dev-provider concern only —
+        local Ollama (the competition path) has no rate limit."""
+        resp: httpx.Response | None = None
+        for attempt in range(4):
+            resp = self._client.post(
+                f"{self.base_url}/chat/completions",
+                headers=self._headers(), json=body,
+            )
+            if resp.status_code != 429:
+                break
+            wait = min(float(resp.headers.get("retry-after") or 20.0), 60.0)
+            print(
+                f"rate limited (429) — waiting {wait:.0f}s, "
+                f"attempt {attempt + 1}/3", file=sys.stderr,
+            )
+            time.sleep(wait)
+        assert resp is not None
         resp.raise_for_status()
+        return resp
+
+    def complete(self, system: str, user: str) -> str:
+        resp = self._post({
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "temperature": 0,
+            "response_format": {"type": "json_object"},  # force valid JSON (ADR 0016)
+        })
         return resp.json()["choices"][0]["message"]["content"]
 
     def chat(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
@@ -145,10 +164,7 @@ class OpenAICompatClient:
         body: dict = {"model": self.model, "messages": messages, "temperature": 0}
         if tools:
             body["tools"] = tools
-        resp = self._client.post(
-            f"{self.base_url}/chat/completions", headers=self._headers(), json=body
-        )
-        resp.raise_for_status()
+        resp = self._post(body)
         msg = resp.json()["choices"][0]["message"]
         return {
             "role": msg.get("role", "assistant"),
