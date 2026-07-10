@@ -153,6 +153,16 @@
 - Not fully test-run here (Docker needs the user's shell perms; extraction
   needs the model) — config verified, YAML valid, scripts compile.
 
+## Next major work — professional frontend rebuild (planned 2026-07-10)
+
+- Replace the Streamlit **public** frontend with one professional, unified web
+  UI (comparison dashboard + chatbot together). Streamlit **control panel**
+  (ADR 0018) stays. Allowed by ADR 0012 (Streamlit behind a clean boundary).
+- **First step:** an HTTP API layer (FastAPI) wrapping storage + agent —
+  additive, on a branch; same API the future mobile app needs.
+- To be done in a **dedicated session**. Full handoff:
+  `docs/frontend-rebuild-brief.md`. Keep the old dashboard working until parity.
+
 ## Parked ideas (good, but deliberately deferred)
 
 - **Conversation-data asset.** The user↔chatbot interaction traces (question →
