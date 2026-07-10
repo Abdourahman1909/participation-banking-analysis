@@ -31,14 +31,13 @@ by hand — Docker brings them.
 
 ## 2. Get the code
 
-In PowerShell:
+In PowerShell (type the URL exactly — **no angle brackets**; PowerShell treats
+`<` and `>` as special characters and will error):
 
 ```powershell
-git clone <REPO-URL>
+git clone https://github.com/Abdourahman1909/participation-banking-analysis.git
 cd participation-banking-analysis
 ```
-
-(Ask the team for the exact `<REPO-URL>`.)
 
 ---
 
