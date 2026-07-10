@@ -17,6 +17,25 @@ This swap is explicitly allowed by **ADR 0012** (Streamlit was chosen *behind a
 clean backend boundary* precisely so it could be replaced later without touching
 the backend).
 
+**Three surfaces, one professional product** (user confirmed 2026-07-10):
+1. **Comparison dashboard** — the public product face.
+2. **Chatbot** — in the same unified UI, not a separate tab.
+3. **Operational / pipeline-activity view** — a *polished* way to watch the
+   system work. Today the user runs the pipeline and stares at raw Scrapling
+   terminal logs (`Fetched (200) …`, `Kuveyt Türk: 10/10 campaigns collected`,
+   `T.O.M.: 3/3`, extraction running). They want this — and everything like it
+   (collection progress, per-bank results, extraction/validation status, live
+   run activity) — shown **cleanly and professionally**, not as terminal output.
+   This is a first-class requirement, not an afterthought. Open question for the
+   new session: does this live inside the new UI as an "operations/monitor"
+   view, and how does it relate to the Streamlit control panel (ADR 0018) —
+   replace it, or keep control panel internal and add a polished read-only
+   monitor to the product? Decide via grilling; record an ADR.
+
+**Brand is locked and user-approved.** The KıyasAI teal-green + diamond-mark
+identity in the just-submitted team-introduction PDF is the confirmed look —
+inherit it exactly (see `DESIGN.md`), do not redesign the brand.
+
 ## The architectural prerequisite — design this FIRST
 
 The Streamlit app calls Python functions in-process. A real web frontend can't
@@ -36,6 +55,13 @@ current `dashboard.py` already does):
 - `POST /api/chat` `{question}` → the agent's **answer + sources** contract
   (ADR 0009): `{answer, sources:[{bank, title, field, value, evidence_quote}]}`.
 - (later) `GET /api/banks`, history/export for the analyst audience.
+- **Operational view** (surface 3): `GET /api/pipeline/status` → the funnel +
+  per-bank coverage + last-run times + model reachability (reuse
+  `control_panel/ops.py: status()/model_status()`). `POST /api/pipeline/run`
+  → trigger collect/extract/validate. For **live activity** (the polished
+  replacement for the Scrapling terminal logs), stream progress/log lines via
+  Server-Sent Events or WebSocket, or poll a `GET /api/pipeline/runs` feed —
+  decide in the new session. Render as a clean activity timeline, not raw logs.
 
 Reuse the existing code: `banking_analysis.storage.db` and
 `banking_analysis.agent.agent.answer(...)`. Keep the agent **read-only**.
