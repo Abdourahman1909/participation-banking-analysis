@@ -68,7 +68,7 @@ Scale ratio ~1.2. No display fonts anywhere in UI/labels/data.
 
 ## Components
 
-- **App header** — brand mark (teal diamond + "Katılım Compare" wordmark) on
+- **App header** — brand mark (teal diamond + "KıyasAI" wordmark) on
   the left, a one-line tagline, and the live stat strip on the right. Sits on
   `--surface` with a bottom hairline. Not a hero.
 - **Stat strip** — modest inline counts (`10 banka · 13 kampanya · 8 ürün

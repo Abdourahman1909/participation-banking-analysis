@@ -102,8 +102,10 @@
    remaining work is operational: run extraction + validation + agent against
    the real model on the GPU laptop (ADR 0015), then the full pipeline is
    live end-to-end.
-5. Decide the project name (UI currently uses the working title "Katılım
-   Compare" — not final)
+5. ~~Decide the project name~~ **DONE (2026-07-10): "KıyasAI"** — same as the
+   team name on the TEKNOFEST application (kıyas = comparison, also the
+   Islamic-jurisprudence term for analogical reasoning). ASCII "KiyasAI"
+   where Turkish characters aren't allowed.
 6. Data-lifecycle follow-ups (ADR 0017). **Current View now implemented** for
    counts (dashboard header + control panel) and extraction (extracts the
    latest snapshot per bank+URL, not every re-scrape). Still to do: display-

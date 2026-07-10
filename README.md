@@ -1,4 +1,4 @@
-# Participation Banking Product Analysis (Katılım Compare)
+# KıyasAI — Participation Banking Product Analysis
 
 Compares financial products across Turkey's participation banks. It:
 

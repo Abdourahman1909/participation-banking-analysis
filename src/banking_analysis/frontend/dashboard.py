@@ -28,7 +28,7 @@ from banking_analysis.frontend.sample_data import (
     type_label,
 )
 
-st.set_page_config(page_title="Katılım Compare", page_icon="◆", layout="wide")
+st.set_page_config(page_title="KıyasAI", page_icon="◆", layout="wide")
 theme.inject_theme()
 
 
@@ -128,7 +128,7 @@ def render_header(stats: dict | None) -> None:
           <div class="kc-brand">
             <div class="kc-mark"></div>
             <div>
-              <div class="kc-wordmark">Katılım&nbsp;Compare</div>
+              <div class="kc-wordmark">KıyasAI</div>
               <div class="kc-tagline">Türkiye katılım bankalarının ürünlerini tek yerde karşılaştırın</div>
             </div>
           </div>
