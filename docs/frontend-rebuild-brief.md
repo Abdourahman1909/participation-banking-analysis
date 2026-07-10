@@ -86,14 +86,21 @@ Reuse the existing code: `banking_analysis.storage.db` and
 
 - **Brand: KıyasAI** (teal-green, calm-analytical light theme; deliberately not
   finance-navy). Wordmark + teal diamond mark.
-- **`DESIGN.md`** — the visual system: OKLCH palette (`--brand` = `#0F8A77`),
-  typography scale, component list, motion, layout. Port these tokens into the
-  new stack (e.g. CSS variables / Tailwind theme) so brand continuity holds.
+- **`DESIGN.md`** — keep the **brand foundations**: OKLCH palette (`--brand` =
+  `#0F8A77`), the teal-green identity, logo, typographic intent. Port these
+  tokens into the new stack (CSS variables / Tailwind theme). BUT its
+  component/layout specs were written for Streamlit's constraints — treat those
+  as history, not a mandate. The new UI's layout and components are a fresh
+  professional design; refresh `DESIGN.md` to match once the new direction lands.
 - **`PRODUCT.md`** — audiences, register, principles ("clarity and evident
   correctness beat feature breadth").
-- The current `dashboard.py` is a working **reference for behavior** (filter,
-  sort, best-rate highlight, Panel + Sohbet, graceful fallback to sample data)
-  — rebuild the experience, not the Streamlit code.
+- The current `dashboard.py` is a **reference for BEHAVIOR ONLY** — the data
+  shown, filter/sort, best-rate highlight, Panel + Sohbet, graceful fallback to
+  sample data. **It is NOT the visual target.** The user explicitly does *not*
+  like the current dashboard and chat *design* (a Streamlit limitation —
+  stacked widgets, weak layout control, no real custom components). Redesign
+  the layout and components fresh and professionally; do not port the Streamlit
+  look. Only the **brand** (color + logo) is being kept, not the current UI.
 
 ## Recommended stack (confirm via grilling in the new session)
 
