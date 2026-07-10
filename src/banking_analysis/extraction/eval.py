@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import re
 
-from banking_analysis.extraction.client import OllamaClient
+from banking_analysis.extraction.client import get_model
 from banking_analysis.extraction.extractor import extract_campaign
 from banking_analysis.extraction.models import FIELD_NAMES
 from banking_analysis.storage.db import connect
@@ -61,7 +61,7 @@ def _field_correct(expected: str | None, got: str | None) -> bool:
 
 
 def main() -> None:
-    model = OllamaClient()
+    model = get_model()
     print(f"Model server: {model.url} ({model.model})\n")
 
     with connect() as conn:

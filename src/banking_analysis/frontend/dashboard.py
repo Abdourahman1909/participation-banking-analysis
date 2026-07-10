@@ -303,13 +303,13 @@ def get_answer(question: str) -> dict:
     chat still works before extraction has run."""
     try:
         from banking_analysis.agent.agent import answer as agent_answer
-        from banking_analysis.extraction.client import OllamaClient
+        from banking_analysis.extraction.client import get_model
         from banking_analysis.storage.db import connect
 
         with connect() as conn:
             has_data = conn.execute("SELECT count(*) FROM campaigns").fetchone()[0]
             if has_data:
-                res = agent_answer(question, OllamaClient(), conn)
+                res = agent_answer(question, get_model(), conn)
                 return {"answer": res.answer, "sources": res.sources}
     except Exception:
         pass

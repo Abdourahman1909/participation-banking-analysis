@@ -89,7 +89,22 @@ def status() -> dict:
 
 
 def model_status() -> tuple[bool, str]:
-    """Is the model server reachable, and what models does it have?"""
+    """Is the model server reachable, and what models does it have?
+
+    Provider-aware (ADR 0019): if MODEL_PROVIDER selects an external OpenAI-
+    compatible API (dev-only), probe that instead of the local Ollama endpoint.
+    """
+    provider = os.environ.get("MODEL_PROVIDER", "ollama").strip().lower()
+    if provider not in ("", "ollama", "local"):
+        base = os.environ.get("MODEL_API_BASE", "https://api.groq.com/openai/v1").rstrip("/")
+        key = os.environ.get("MODEL_API_KEY", "")
+        try:
+            resp = httpx.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"}, timeout=3.0)
+            resp.raise_for_status()
+            return True, f"external API — {provider} (dev only, ADR 0019)"
+        except Exception as exc:
+            return False, f"external API unreachable at {base} ({type(exc).__name__})"
+
     url = os.environ.get("OLLAMA_URL", "http://localhost:11434").rstrip("/")
     try:
         resp = httpx.get(f"{url}/api/tags", timeout=2.0)

@@ -65,6 +65,14 @@
   `ollama pull qwen2.5:7b-instruct` (or `:14b-instruct`).
 - Extraction code can be **written now** on this machine (it just points
   `OLLAMA_URL` at the GPU laptop) — not blocked on having the hardware yet.
+- **Dev-only external-API fallback (2026-07-10, ADR 0019):** while the GPU
+  machine is being set up, extraction + agent can run against a free external
+  OpenAI-compatible API (Groq default, hosts Qwen2.5) via `get_model()` +
+  `MODEL_PROVIDER`. Guarded: local Ollama stays the default, external is opt-in
+  + key-gated + prints a loud "dev only, invalid for submission" warning.
+  `OpenAICompatClient` in `extraction/client.py`; 6/6 offline tests in
+  `tests/test_client.py` (httpx MockTransport, no network). **Release check:**
+  ensure `MODEL_PROVIDER` is unset/`ollama` before any submission or demo.
 
 ## Next (immediate — do in order)
 

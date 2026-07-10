@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 
-from banking_analysis.extraction.client import OllamaClient
+from banking_analysis.extraction.client import get_model
 from banking_analysis.extraction.extractor import extract_campaign
 from banking_analysis.extraction.store import pending_runs, save_result
 from banking_analysis.storage.db import connect
@@ -21,7 +21,7 @@ log = logging.getLogger("extraction_run")
 
 
 def main() -> None:
-    model = OllamaClient()
+    model = get_model()
     log.info("model server: %s (%s)", model.url, model.model)
 
     with connect() as conn:

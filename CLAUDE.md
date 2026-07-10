@@ -49,7 +49,10 @@ browser, read-only SQL. Run it on its own port:
 ## Technical constraints (these score points, keep them regardless of path)
 
 - Must run fully on-prem/offline — no external LLM APIs, no paid services,
-  no customer data leaving the organization
+  no customer data leaving the organization. (A dev-only external-API model
+  provider exists behind `MODEL_PROVIDER` for testing before the GPU machine
+  is ready — ADR 0019 — but it is opt-in, loud, and must never be the default
+  or ship in the submission. Default stays local Ollama.)
 - Open-source/permissively-licensed dependencies only — no library with
   licensing risk
 
