@@ -122,7 +122,8 @@ async def pipeline_run_events(run_id: int) -> StreamingResponse:
             for e in events:
                 last_seq = e["seq"]
                 body = json.dumps(
-                    {"seq": e["seq"], "type": e["event_type"], **e["payload"]},
+                    {"seq": e["seq"], "type": e["event_type"],
+                     "at": e.get("at"), **e["payload"]},
                     ensure_ascii=False, default=str,
                 )
                 yield f"data: {body}\n\n"

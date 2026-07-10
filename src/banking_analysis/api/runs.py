@@ -100,11 +100,14 @@ def event_conn():
 def fetch_events(run_id: int, after_seq: int = 0) -> list[dict]:
     with psycopg.connect(_dsn(), autocommit=True) as conn:
         rows = conn.execute(
-            "SELECT seq, event_type, payload FROM pipeline_events "
+            "SELECT seq, event_type, payload, created_at FROM pipeline_events "
             "WHERE run_id = %s AND seq > %s ORDER BY seq",
             (run_id, after_seq),
         ).fetchall()
-    return [{"seq": r[0], "event_type": r[1], "payload": r[2]} for r in rows]
+    return [
+        {"seq": r[0], "event_type": r[1], "payload": r[2], "at": r[3]}
+        for r in rows
+    ]
 
 
 def fetch_runs(limit: int = 20) -> list[dict]:

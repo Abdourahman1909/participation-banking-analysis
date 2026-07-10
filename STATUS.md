@@ -153,15 +153,30 @@
 - Not fully test-run here (Docker needs the user's shell perms; extraction
   needs the model) — config verified, YAML valid, scripts compile.
 
-## Next major work — professional frontend rebuild (planned 2026-07-10)
+## Frontend rebuild — BUILT (2026-07-10, branch `frontend-rebuild`)
 
-- Replace the Streamlit **public** frontend with one professional, unified web
-  UI (comparison dashboard + chatbot together). Streamlit **control panel**
-  (ADR 0018) stays. Allowed by ADR 0012 (Streamlit behind a clean boundary).
-- **First step:** an HTTP API layer (FastAPI) wrapping storage + agent —
-  additive, on a branch; same API the future mobile app needs.
-- To be done in a **dedicated session**. Full handoff:
-  `docs/frontend-rebuild-brief.md`. Keep the old dashboard working until parity.
+- **HTTP API boundary built** (ADR 0022, `src/banking_analysis/api/`):
+  FastAPI wrapping storage + agent + pipeline runs. Endpoints: stats,
+  campaigns, chat (answer+sources, ADR 0009), pipeline status/run/runs +
+  **SSE live event stream** (structured events parsed from runner logs —
+  no layer changes; stored append-only in `pipeline_runs`/`pipeline_events`,
+  ADR 0017). 10/10 new offline tests (`tests/test_api.py`); verified live:
+  real collection run streamed over SSE. Run:
+  `uv run python -m banking_analysis.api.runner` (:8000, serves the SPA too).
+- **New unified product UI built** (ADR 0020, `web/`, React+Vite+TS+Tailwind
+  v4): three views in one professional shell — **Panel** (comparison table,
+  filter/sort/best-rate, click-to-expand verbatim evidence + validity badge),
+  **Sohbet** (chat with Kaynaklar sources, suggestion chips, preview
+  badging), **Monitör** (ADR 0021: funnel, DB/model health, run buttons +
+  live activity timeline replacing raw terminal logs). KıyasAI brand tokens
+  ported from DESIGN.md (OKLCH, teal-green); Turkish-first; fully offline
+  (system fonts, static build served by FastAPI). Verified by headless
+  screenshots including a live run triggered from the UI.
+- Deployment: `api/Dockerfile` (multi-stage: Node builds SPA at build time,
+  Python-only runtime) + `api` compose service (:8000). Streamlit dashboard
+  (:8501) and control panel (:8502) stay until retirement decision.
+- Remaining for parity/polish: refresh `DESIGN.md` component specs to the
+  new UI, decide when to retire the Streamlit dashboard, merge the branch.
 
 ## Parked ideas (good, but deliberately deferred)
 

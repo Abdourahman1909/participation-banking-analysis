@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* KıyasAI visual system — brand foundations ported verbatim from DESIGN.md
+   (OKLCH, teal-green, calm-analytical light theme; brand locked, ADR 0020).
+   System font stack: the offline constraint forbids font CDNs. */
+@theme {
+  --color-bg: oklch(1 0 0);
+  --color-surface: oklch(0.985 0.004 178);
+  --color-surface-2: oklch(0.965 0.006 178);
+  --color-ink: oklch(0.21 0.018 195);
+  --color-ink-muted: oklch(0.46 0.016 200);
+  --color-line: oklch(0.9 0.006 195);
+  --color-line-strong: oklch(0.82 0.008 195);
+  --color-brand: oklch(0.52 0.09 178);
+  --color-brand-hover: oklch(0.46 0.092 178);
+  --color-brand-tint: oklch(0.95 0.03 178);
+  --color-success: oklch(0.55 0.11 155);
+  --color-warning: oklch(0.72 0.13 75);
+  --color-warning-ink: oklch(0.5 0.12 75);
+  --color-danger: oklch(0.55 0.18 25);
+  --color-info: oklch(0.55 0.1 240);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu,
+    Cantarell, "Helvetica Neue", Arial, sans-serif;
+
+  --radius-input: 8px;
+  --radius-panel: 10px;
+  --radius-table: 12px;
+
+  /* Strong curves — built-in CSS easings are too weak to feel intentional. */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Rates, amounts, and terms align in columns (DESIGN.md typography). */
+.num {
+  font-feature-settings: "tnum" 1, "cv01" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Motion vocabulary (one system, used by every view) ----------------
+   Product-calm: state only, 150–250ms, strong ease-out. Entrances start
+   visible-ish (opacity + 4px rise, never scale(0)); exits are faster than
+   enters; content is never gated on an animation firing. */
+
+/* Pressable elements: instant tactile feedback. */
+.pressable {
+  transition: transform 140ms var(--ease-out-strong),
+    background-color 150ms ease, border-color 150ms ease, color 150ms ease,
+    opacity 150ms ease;
+}
+.pressable:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* View entrance — restarts each time the view becomes visible. */
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.view-in {
+  animation: view-in 220ms var(--ease-out-strong) both;
+}
+
+/* List/timeline item entrance; stagger applied inline (30–60ms steps). */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise-in {
+  animation: rise-in 200ms var(--ease-out-strong) both;
+}
+
+/* Evidence row expansion: grid-rows 0fr→1fr (interruptible transition). */
+.expander {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms var(--ease-out-strong);
+}
+.expander[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.expander > div {
+  overflow: hidden;
+}
+.expander-body {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+.expander[data-open="true"] .expander-body {
+  opacity: 1;
+  transition: opacity 200ms ease 60ms;
+}
+
+/* Live-run pulse on the monitor's status dot. */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.52 0.09 178 / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.52 0.09 178 / 0);
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-out infinite;
+}
+
+/* Chat: three-dot "assistant is working" indicator. */
+@keyframes think {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.think-dot {
+  animation: think 1.2s ease-in-out infinite;
+}
+.think-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.think-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Reduced motion: keep comprehension-aiding fades, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active:not(:disabled) {
+    transform: none;
+  }
+  .view-in,
+  .rise-in {
+    animation-duration: 1ms;
+  }
+  .expander {
+    transition-duration: 1ms;
+  }
+  .pulse-dot {
+    animation: none;
+  }
+}
